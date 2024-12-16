@@ -1,0 +1,541 @@
+<mvc:View controllerName="cl3.syncyoung.fi.echar.cl3.syncyoung.fi.echar.controller.exchangeRate"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m"
+    xmlns:viz="sap.viz.ui5.controls" xmlns:layout="sap.ui.layout"
+    xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds"
+    xmlns:viz.data="sap.viz.ui5.data"
+    xmlns:custom="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+    xmlns:vl="sap.ui.layout"
+    >
+    <SplitApp
+		id="SplitAppDemo"
+		initialDetail="USD"
+		initialMaster="master">
+        <masterPages>
+			<Page
+				id="master"
+				title="통화"
+				backgroundDesign= "List">
+                <!-- Nav Bar에 국가 및 통화 표시 -->
+				<List id="masterList" 
+                      items = "{ path: 'NationSet>/NationSet', 
+                      sorter: { path: 'NationSet>waers', descending: true } }" 
+                      itemPress="onListItemPress">
+					<StandardListItem title="{NationSet>waers}"
+                                      description="{NationSet>nation}"
+                                      type="Active"           
+                                      icon='sap-icon://money-bills'
+                                      custom:to="{NationSet>waers}"  />
+				</List>
+			</Page>
+		</masterPages>
+		<detailPages>
+			<Page
+				id="USD"
+				title="미국 달러"
+				backgroundDesign= "Solid"
+				showNavButton="{= !${device>/system/desktop} }"
+				navButtonPress="onPressDetailBack">
+                <vl:Grid defaultSpan="L12 M12 S12" hSpacing="1">
+                    <vl:content>
+                        <vl:Grid defaultSpan="XL6 L6 M6 S6" >
+                            <viz:VizFrame id="usdProfit" uiConfig="{applicationSet:'fiori'}"
+                                width="100%" vizType='donut'
+                                vizProperties='{
+                                    "title": {
+                                    "text": "환차익",
+                                "visible": true}
+                                }'
+                                >
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset data="{/ExrateSet}">
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition name="BP Code"
+                                                value="{cname}" />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition name="Profit/Loss"
+                                                value="{price_sum}" />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem uid="size" type="Measure"
+                                        values="Profit/Loss" />
+                                    <viz.feeds:FeedItem uid="color" type="Dimension"
+                                        values="BP Code" />
+                                </viz:feeds>
+                                
+                                <viz:dependents>
+                                    <viz:Popover id="usdProfitPopOver"></viz:Popover>
+                                </viz:dependents>
+                            </viz:VizFrame>
+                            <viz:VizFrame  id="usdLoss" uiConfig="{applicationSet:'fiori'}"
+                                width="100%" vizType='donut'
+                                vizProperties='{
+                                    "title": {
+                                    "text": "환차손",
+                                "visible": true}
+                                }'
+                                >
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset data="{/ExrateSet}">
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition name="BP Code"
+                                                value="{cname}" />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition name="Profit/Loss"
+                                                value="{price_sum}" />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem uid="size" type="Measure"
+                                        values="Profit/Loss" />
+                                    <viz.feeds:FeedItem uid="color" type="Dimension"
+                                        values="BP Code" />
+                                </viz:feeds>
+                                
+                                <viz:dependents>
+                                    <viz:Popover id="usdLossPopOver"></viz:Popover>
+                                </viz:dependents>
+                            </viz:VizFrame>
+                        </vl:Grid>
+                    </vl:content>
+                    <vl:content>
+                        <vl:Grid defaultSpan="L12 M12 S12" containerQuery="true" width="100%" >
+                            <viz:VizFrame id="usdLine" uiConfig="{applicationSet:'fiori'}"
+                                width="100%" vizType='line'
+                                vizProperties="{
+                                    'plotArea': {
+                                        'dataLabel': {
+                                            'visible': true
+                                        }
+                                    },
+                                    'title': {
+                                        'text': '환율 변동 추이'
+                                    },
+                                    'valueAxis': {
+                                        'scale': {
+                                            'fixedRange': true,
+                                            'minValue': 1360,
+                                            'maxValue': 1420,
+                                            'step': 10
+                                        }
+                                    }}">
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset data="{USDRateSet>/USDRateSet}">
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition name="Date"
+                                                value="{path: 'USDRateSet>edate', 
+                                                        type: 'sap.ui.model.type.Date', 
+                                                        formatOptions: { pattern: 'yyyy-MM-dd' }}" />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition name="Fcurr"
+                                                value="{USDRateSet>fcurr}" />
+                                            <viz.data:MeasureDefinition name="Exrate"
+                                                value="{USDRateSet>exrate}" />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem id='valueAxisFeed' uid="valueAxis" type="Measure"
+                                        values="Exrate" />
+                                    <viz.feeds:FeedItem id='categoryAxisFeed' uid="categoryAxis" type="Dimension"
+                                        values="Date" />
+                                </viz:feeds>
+                                <viz:dependents>
+                                    <viz:Popover id="usdLinePopOver"></viz:Popover>
+                                </viz:dependents>
+                            </viz:VizFrame>
+                        </vl:Grid >
+                    </vl:content>
+                </vl:Grid>
+			</Page>
+            <Page
+				id="CNH"
+				title="중국 위옌화"
+				backgroundDesign= "Solid">
+                <vl:Grid defaultSpan="L12 M12 S12" hSpacing="1">
+                    <vl:content>
+                        <vl:Grid defaultSpan="XL6 L6 M6 S6" >
+                            <viz:VizFrame id="chnProfit" uiConfig="{applicationSet:'fiori'}"
+                                    width="100%" vizType='donut'
+                                    vizProperties='{
+                                        "title": {
+                                        "text": "환차익",
+                                    "visible": true
+                                    }
+                                }'>
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset data="{/ExrateSet}">
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition name="BP Code"
+                                                value="{cname}" />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition name="Profit/Loss"
+                                                value="{price_sum}" />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem uid="size" type="Measure"
+                                        values="Profit/Loss" />
+                                    <viz.feeds:FeedItem uid="color" type="Dimension"
+                                        values="BP Code" />
+                                </viz:feeds>
+                                
+                                <viz:dependents>
+                                    <viz:Popover id="chnProfitPopOver"></viz:Popover>
+                                </viz:dependents>
+                            </viz:VizFrame>
+                            <viz:VizFrame id="chnLoss" uiConfig="{applicationSet:'fiori'}"
+                                    width="100%" vizType='donut'
+                                    vizProperties='{
+                                        "title": {
+                                        "text": "환차손",
+                                    "visible": true
+                                    }
+                                }'>
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset data="{/ExrateSet}">
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition name="BP Code"
+                                                value="{cname}" />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition name="Profit/Loss"
+                                                value="{price_sum}" />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem uid="size" type="Measure"
+                                        values="Profit/Loss" />
+                                    <viz.feeds:FeedItem uid="color" type="Dimension"
+                                        values="BP Code" />
+                                </viz:feeds>
+                                
+                                <viz:dependents>
+                                    <viz:Popover id="chnLossPopOver"></viz:Popover>
+                                </viz:dependents>
+                            </viz:VizFrame>
+                        </vl:Grid>
+                    </vl:content>
+                    <vl:content>
+                        <vl:Grid defaultSpan="L12 M12 S12" containerQuery="true" width="100%" >
+                            <viz:VizFrame id="chnLine" uiConfig="{applicationSet:'fiori'}"
+                                width="100%" vizType='line'
+                                vizProperties="{
+                                    'plotArea': {
+                                        'dataLabel': {
+                                            'visible': true
+                                        }
+                                    },
+                                    'title': {
+                                        'text': '환율 변동 추이'
+                                    },
+                                    'valueAxis': {
+                                        'scale': {
+                                            'fixedRange': true,
+                                            'minValue': 185,
+                                            'maxValue': 205,
+                                            'step': 5
+                                        }
+                                    }}">
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset data="{CNHRateSet>/CNHRateSet}">
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition name="Date"
+                                                value="{path: 'CNHRateSet>edate', 
+                                                        type: 'sap.ui.model.type.Date', 
+                                                        formatOptions: { pattern: 'yyyy-MM-dd' }}" />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition name="Fcurr"
+                                                value="{CNHRateSet>fcurr}" />
+                                            <viz.data:MeasureDefinition name="Exrate"
+                                                value="{CNHRateSet>exrate}" />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem id='valueAxisFeedchn' uid="valueAxis" type="Measure"
+                                        values="Exrate" />
+                                    <viz.feeds:FeedItem id='categoryAxisFeedchn' uid="categoryAxis" type="Dimension"
+                                        values="Date" />
+                                </viz:feeds>
+                                <viz:dependents>
+                                    <viz:Popover id="chnLinePopOver"></viz:Popover>
+                                </viz:dependents>
+                            </viz:VizFrame>
+                        </vl:Grid >
+                    </vl:content>
+                </vl:Grid>
+			</Page>
+            <Page
+				id="EUR"
+				title="유로"
+				backgroundDesign= "Solid"
+				showNavButton="{= !${device>/system/desktop} }"
+				navButtonPress="onPressDetailBack">
+                <vl:Grid defaultSpan="L12 M12 S12" hSpacing="1">
+                    <vl:content>
+                        <vl:Grid defaultSpan="XL6 L6 M6 S6" >
+                            <viz:VizFrame id="eurProfit" uiConfig="{applicationSet:'fiori'}"
+                                width="100%" vizType='donut'
+                                vizProperties='{
+                                    "title": {
+                                    "text": "환차익",
+                                "visible": true}
+                                }'
+                                >
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset data="{/ExrateSet}">
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition name="BP Code"
+                                                value="{cname}" />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition name="Profit/Loss"
+                                                value="{price_sum}" />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem uid="size" type="Measure"
+                                        values="Profit/Loss" />
+                                    <viz.feeds:FeedItem uid="color" type="Dimension"
+                                        values="BP Code" />
+                                </viz:feeds>
+                                
+                                <viz:dependents>
+                                    <viz:Popover id="eurProfitPopOver"></viz:Popover>
+                                </viz:dependents>
+                            </viz:VizFrame>
+                            <viz:VizFrame  id="eurLoss" uiConfig="{applicationSet:'fiori'}"
+                                width="100%" vizType='donut'
+                                vizProperties='{
+                                    "title": {
+                                    "text": "환차손",
+                                "visible": true}
+                                }'
+                                >
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset data="{/ExrateSet}">
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition name="BP Code"
+                                                value="{cname}" />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition name="Profit/Loss"
+                                                value="{price_sum}" />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem uid="size" type="Measure"
+                                        values="Profit/Loss" />
+                                    <viz.feeds:FeedItem uid="color" type="Dimension"
+                                        values="BP Code" />
+                                </viz:feeds>
+                                
+                                <viz:dependents>
+                                    <viz:Popover id="eurLossPopOver"></viz:Popover>
+                                </viz:dependents>
+                            </viz:VizFrame>
+                        </vl:Grid>
+                    </vl:content>
+                    <vl:content>
+                        <vl:Grid  defaultSpan="L12 M12 S12" containerQuery="true" width="100%" >
+                            <viz:VizFrame id="eurLine" uiConfig="{applicationSet:'fiori'}"
+                                width="100%" vizType='line'
+                                vizProperties="{
+                                    'plotArea': {
+                                        'dataLabel': {
+                                            'visible': true
+                                        }
+                                    },
+                                    'title': {
+                                        'text': '환율 변동 추이'
+                                    },
+                                    'valueAxis': {
+                                        'scale': {
+                                            'fixedRange': true,
+                                            'minValue': 1470,
+                                            'maxValue': 1520,
+                                            'step': 10
+                                        }
+                                    }}">
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset data="{EURRateSet>/ExrateSet}">
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition name="Date"
+                                                value="{path: 'ExrateSet>edate', 
+                                                        type: 'sap.ui.model.type.Date', 
+                                                        formatOptions: { pattern: 'yyyy-MM-dd' }}" />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition name="Fcurr"
+                                                value="{ExrateSet>fcurr}" />
+                                            <viz.data:MeasureDefinition name="Exrate"
+                                                value="{ExrateSet>exrate}" />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem id='valueAxisFeedeur' uid="valueAxis" type="Measure"
+                                        values="Exrate" />
+                                    <viz.feeds:FeedItem id='categoryAxisFeedeur' uid="categoryAxis" type="Dimension"
+                                        values="Date" />
+                                </viz:feeds>
+                                <viz:dependents>
+                                    <viz:Popover id="eurLinePopOver"></viz:Popover>
+                                </viz:dependents>
+                            </viz:VizFrame>
+                        </vl:Grid >
+                    </vl:content>
+                </vl:Grid>
+			</Page>
+            <Page
+				id="JPY"
+				title="일본 옌"
+				backgroundDesign= "Solid"
+				showNavButton="{= !${device>/system/desktop} }"
+				navButtonPress="onPressDetailBack">
+                <vl:Grid defaultSpan="L12 M12 S12" hSpacing="1">
+                    <vl:content>
+                        <vl:Grid defaultSpan="XL6 L6 M6 S6" >
+                            <viz:VizFrame id="jpyProfit" uiConfig="{applicationSet:'fiori'}"
+                                width="100%" vizType='donut'
+                                vizProperties='{
+                                    "title": {
+                                    "text": "환차익",
+                                "visible": true}
+                                }'
+                                >
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset data="{/ExrateSet}">
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition name="BP Code"
+                                                value="{cname}" />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition name="Profit/Loss"
+                                                value="{price_sum}" />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem uid="size" type="Measure"
+                                        values="Profit/Loss" />
+                                    <viz.feeds:FeedItem uid="color" type="Dimension"
+                                        values="BP Code" />
+                                </viz:feeds>
+                                
+                                <viz:dependents>
+                                    <viz:Popover id="jpyProfitPopOver"></viz:Popover>
+                                </viz:dependents>
+                            </viz:VizFrame>
+                            <viz:VizFrame  id="jpyLoss" uiConfig="{applicationSet:'fiori'}"
+                                width="100%" vizType='donut'
+                                vizProperties='{
+                                    "title": {
+                                    "text": "환차손",
+                                "visible": true}
+                                }'
+                                >
+                                <viz:dataset>
+                                    <viz.data:FlattenedDataset data="{/ExrateSet}">
+                                        <viz.data:dimensions>
+                                            <viz.data:DimensionDefinition name="BP Code"
+                                                value="{cname}" />
+                                        </viz.data:dimensions>
+                                        <viz.data:measures>
+                                            <viz.data:MeasureDefinition name="Profit/Loss"
+                                                value="{price_sum}" />
+                                        </viz.data:measures>
+                                    </viz.data:FlattenedDataset>
+                                </viz:dataset>
+
+                                <viz:feeds>
+                                    <viz.feeds:FeedItem uid="size" type="Measure"
+                                        values="Profit/Loss" />
+                                    <viz.feeds:FeedItem uid="color" type="Dimension"
+                                        values="BP Code" />
+                                </viz:feeds>
+                                
+                                <viz:dependents>
+                                    <viz:Popover id="jpyLossPopOver"></viz:Popover>
+                                </viz:dependents>
+                            </viz:VizFrame>
+                        </vl:Grid>
+                    </vl:content>
+                    <vl:content>
+                        <vl:Grid defaultSpan="L12 M12 S12" containerQuery="true" width="100%" >
+                                <viz:VizFrame id="jpyLine" uiConfig="{applicationSet:'fiori'}"
+                                    width="100%" vizType='line'
+                                     vizProperties="{
+                                    'plotArea': {
+                                        'dataLabel': {
+                                            'visible': true
+                                        }
+                                    },
+                                    'title': {
+                                        'text': '환율 변동 추이'
+                                    },
+                                    'valueAxis': {
+                                        'scale': {
+                                            'fixedRange': true,
+                                            'minValue': 860,
+                                            'maxValue': 940,
+                                            'step': 5
+                                        }
+                                    }}">
+                                    <viz:dataset>
+                                        <viz.data:FlattenedDataset data="{JPYRateSet>/ExchangeRateSet}">
+                                            <viz.data:dimensions>
+                                                <viz.data:DimensionDefinition name="Date"
+                                                    value="{path: 'ExchangeRateSet>Edate', 
+                                                            type: 'sap.ui.model.type.Date', 
+                                                            formatOptions: { pattern: 'yyyy-MM-dd' }}" />
+                                            </viz.data:dimensions>
+                                            <viz.data:measures>
+                                                <viz.data:MeasureDefinition name="Fcurr"
+                                                    value="{ExchangeRateSet>Fcurr}" />
+                                                <viz.data:MeasureDefinition name="Exrate"
+                                                    value="{ExchangeRateSet>Exrate}" />
+                                            </viz.data:measures>
+                                        </viz.data:FlattenedDataset>
+                                    </viz:dataset>
+
+                                    <viz:feeds>
+                                        <viz.feeds:FeedItem id='valueAxisFeedjpy' uid="valueAxis" type="Measure"
+                                            values="Exrate" />
+                                        <viz.feeds:FeedItem id='categoryAxisFeedjpy' uid="categoryAxis" type="Dimension"
+                                            values="Date" />
+                                    </viz:feeds>
+                                    <viz:dependents>
+                                        <viz:Popover id="jpyLinePopOver"></viz:Popover>
+                                    </viz:dependents>
+                                </viz:VizFrame>
+                            </vl:Grid >
+                    </vl:content>
+                </vl:Grid>
+			</Page>
+		</detailPages>
+	</SplitApp>
+</mvc:View>
